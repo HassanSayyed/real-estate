@@ -1,3 +1,0 @@
-server.port=8090
-spring.data.mongodb.uri=mongodb+srv://...
-spring.data.mongodb.database=real-estate-db
