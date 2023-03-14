@@ -32,6 +32,7 @@ public class EstateController {
 
     @PostMapping
     public ResponseEntity<Estate> addEstate(@RequestBody Estate estate) {
+        System.out.println(estate.toString());
         Estate newEstate = estateServices.addEstate(estate);
         return new ResponseEntity<Estate>(newEstate, HttpStatus.CREATED);
     }

@@ -1,5 +1,6 @@
 package com.example.server.realestate;
 
+import com.example.server.exceptions.InvalidInputException;
 import com.example.server.exceptions.ResourceNotFoundException;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +14,8 @@ public class EstateServices {
 
     private final EstateRepository estateRepository;
     @Autowired
-    public EstateServices(EstateRepository estateRipository) {
-        this.estateRepository = estateRipository;
+    public EstateServices(EstateRepository estateRepository) {
+        this.estateRepository = estateRepository;
     }
 
     public List<Estate> findAllEstates() {
@@ -22,6 +23,9 @@ public class EstateServices {
     }
 
     public Optional<Estate> findEstateById(String id) {
+        if (id == null || id.isEmpty()) {
+            throw new InvalidInputException("ID must not be null or empty");
+        }
         return estateRepository.findById(id);
     }
 
@@ -36,28 +40,44 @@ public class EstateServices {
     }
 
     public Estate updateEstate(String id, Estate estate) {
-        Estate existingEstate = estateRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Estate", "id", id));
+        try {
+            if (id == null || id.isEmpty()) {
+                throw new IllegalArgumentException("ID must not be null or empty");
+            }
 
-        existingEstate.setName(estate.getName());
-        existingEstate.setPrice(estate.getPrice());
-        existingEstate.setRoomNum(estate.getRoomNum());
-        existingEstate.setBathroomNum(estate.getBathroomNum());
-        existingEstate.setArea(estate.getArea());
-        existingEstate.setDescription(estate.getDescription());
-        existingEstate.setNegotiable(estate.isNegotiable());
-        existingEstate.setPhoneNumber(estate.getPhoneNumber());
-        existingEstate.setEmail(estate.getEmail());
-        existingEstate.setImageUrl(estate.getImageUrl());
+            Estate existingEstate = estateRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Estate", "id", id));
 
-        return estateRepository.save(existingEstate);
+            existingEstate.setName(estate.getName());
+            existingEstate.setPrice(estate.getPrice());
+            existingEstate.setRoomNum(estate.getRoomNum());
+            existingEstate.setBathroomNum(estate.getBathroomNum());
+            existingEstate.setArea(estate.getArea());
+            existingEstate.setDescription(estate.getDescription());
+            existingEstate.setNegotiable(estate.isNegotiable());
+            existingEstate.setPhoneNumber(estate.getPhoneNumber());
+            existingEstate.setEmail(estate.getEmail());
+            existingEstate.setImageUrl(estate.getImageUrl());
+
+            return estateRepository.save(existingEstate);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidInputException(e.getMessage());
+        }
     }
 
     public void deleteEstateById(String id) {
-        Estate estateToDelete = estateRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Estate", "id", id));
+        try {
+            if (id == null || id.isEmpty()) {
+                throw new IllegalArgumentException("ID must not be null or empty");
+            }
 
-        estateRepository.delete(estateToDelete);
+            Estate estateToDelete = estateRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Estate", "id", id));
+
+            estateRepository.delete(estateToDelete);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidInputException(e.getMessage());
+        }
     }
 
 }
